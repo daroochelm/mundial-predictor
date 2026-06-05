@@ -74,60 +74,53 @@ export default function DashboardPage() {
       <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold text-white mb-10">Mecze i Typy</h1>
         <div className="grid gap-6">
-          {fixtures.map((fixture) => {
-            // Podwójna blokada: status musi być 'NS' ORAZ mecz musi być w przyszłości
-            const isMatchLocked = 
-              fixture.status !== 'NS' || 
-              new Date(fixture.start_time).getTime() <= new Date().getTime();
-            
-            const pred = predictions[fixture.id] || { home: '', away: '', points: null };
-            
-            return (
-              <div key={fixture.id} className="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-6">
-                
-                <div className="flex items-center gap-4 text-xl font-bold text-white">
-                  {fixture.home_logo_url && <img src={fixture.home_logo_url} className="w-8 h-8 rounded-full bg-slate-800" alt={fixture.home_team} />}
-                  <span className="w-24 text-right truncate">{fixture.home_team}</span>
-                  
-                  <div className="flex flex-col items-center">
-                    <span className="px-4 py-2 bg-slate-800 rounded-lg text-yellow-400 font-mono">
-                      {fixture.status === 'NS' ? 'vs' : `${fixture.home_score} : ${fixture.away_score}`}
-                    </span>
-                    
-                    <span className={`text-[10px] mt-1 font-bold px-2 py-0.5 rounded ${
-                      fixture.status === '1H' || fixture.status === '2H' ? 'bg-green-500/20 text-green-400' :
-                      fixture.status === 'FT' ? 'bg-red-500/20 text-red-400' :
-                      fixture.status === 'CANC' ? 'bg-gray-500/20 text-gray-400' :
-                      fixture.status === 'PST' ? 'bg-orange-500/20 text-orange-400' :
-                      fixture.status === 'PEN' ? 'bg-purple-500/20 text-purple-400' :
-                      'text-slate-500'
-                    }`}>
-                      {fixture.status === 'NS' ? 'DO ROZPOCZĘCIA' : fixture.status}
-                    </span>
+        {fixtures.map((fixture) => {
+  const isMatchLocked = fixture.status !== 'NS' || new Date(fixture.start_time).getTime() <= new Date().getTime();
+  const pred = predictions[fixture.id] || { home: '', away: '', points: null };
+  
+  return (
+    <div key={fixture.id} className="bg-slate-900 border border-slate-800 rounded-2xl p-4 md:p-6 flex flex-col md:flex-row items-center justify-between gap-4">
+      
+      {/* Sekcja Drużyn - zwiększamy przestrzeń i dodajemy elastyczność */}
+      <div className="flex items-center gap-2 md:gap-4 text-lg md:text-xl font-bold text-white flex-1 w-full justify-center md:justify-start">
+        {fixture.home_logo_url && <img src={fixture.home_logo_url} className="w-8 h-8 rounded-full bg-slate-800 flex-shrink-0" alt={fixture.home_team} />}
+        <span className="truncate max-w-[120px] md:max-w-[180px] text-right">{fixture.home_team}</span>
+        
+        {/* Środek: wynik i data (stała szerokość, żeby nie ucinać nazw) */}
+        <div className="flex flex-col items-center min-w-[80px] px-2">
+          <span className="px-3 py-1 bg-slate-800 rounded-lg text-yellow-400 font-mono text-sm md:text-base">
+            {fixture.status === 'NS' ? 'vs' : `${fixture.home_score} : ${fixture.away_score}`}
+          </span>
+          <span className={`text-[9px] mt-1 font-bold px-1.5 py-0.5 rounded ${
+            fixture.status === '1H' || fixture.status === '2H' ? 'bg-green-500/20 text-green-400' :
+            fixture.status === 'FT' ? 'bg-red-500/20 text-red-400' : 'text-slate-500'
+          }`}>
+            {fixture.status === 'NS' ? 'DO ROZPOCZĘCIA' : fixture.status}
+          </span>
+          <span className="text-[10px] text-slate-500 mt-0.5 font-medium whitespace-nowrap">
+            {new Date(fixture.start_time).toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' })}
+          </span>
+        </div>
+        
+        <span className="truncate max-w-[120px] md:max-w-[180px] text-left">{fixture.away_team}</span>
+        {fixture.away_logo_url && <img src={fixture.away_logo_url} className="w-8 h-8 rounded-full bg-slate-800 flex-shrink-0" alt={fixture.away_team} />}
+      </div>
 
-                    <span className="text-xs text-slate-500 mt-1 font-medium">
-                      {new Date(fixture.start_time).toLocaleString('pl-PL', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
-                    </span>
-                  </div>
-                  
-                  <span className="w-24 text-left truncate">{fixture.away_team}</span>
-                  {fixture.away_logo_url && <img src={fixture.away_logo_url} className="w-8 h-8 rounded-full bg-slate-800" alt={fixture.away_team} />}
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <input type="number" disabled={isMatchLocked} value={pred.home ?? ''} onChange={(e) => handlePredictionChange(fixture.id, 'home', e.target.value)} className="w-14 h-12 bg-slate-800 text-center text-white rounded-lg disabled:opacity-30" />
-                  <span className="text-slate-500">:</span>
-                  <input type="number" disabled={isMatchLocked} value={pred.away ?? ''} onChange={(e) => handlePredictionChange(fixture.id, 'away', e.target.value)} className="w-14 h-12 bg-slate-800 text-center text-white rounded-lg disabled:opacity-30" />
-                  
-                  {fixture.status === 'FT' ? (
-                    <div className="px-3 py-2 bg-green-500/20 text-green-400 rounded-lg font-bold">{pred.points ?? 0} pkt</div>
-                  ) : (
-                    <button onClick={() => submitPrediction(fixture.id)} disabled={isMatchLocked} className="bg-cyan-500 px-4 py-2 rounded-lg font-bold disabled:opacity-30">Zapisz</button>
-                  )}
-                </div>
-              </div>
-            );
-          })}
+      {/* Sekcja Typowania */}
+      <div className="flex items-center gap-2 mt-4 md:mt-0 flex-shrink-0">
+        <input type="number" disabled={isMatchLocked} value={pred.home ?? ''} onChange={(e) => handlePredictionChange(fixture.id, 'home', e.target.value)} className="w-12 h-10 bg-slate-800 text-center text-white rounded-lg" />
+        <span className="text-slate-500">:</span>
+        <input type="number" disabled={isMatchLocked} value={pred.away ?? ''} onChange={(e) => handlePredictionChange(fixture.id, 'away', e.target.value)} className="w-12 h-10 bg-slate-800 text-center text-white rounded-lg" />
+        
+        {fixture.status === 'FT' ? (
+          <div className="px-3 py-2 bg-green-500/20 text-green-400 rounded-lg font-bold text-sm ml-2">{pred.points ?? 0} pkt</div>
+        ) : (
+          <button onClick={() => submitPrediction(fixture.id)} disabled={isMatchLocked} className="bg-cyan-500 px-3 py-2 rounded-lg font-bold text-sm ml-2 disabled:opacity-30">Zapisz</button>
+        )}
+      </div>
+    </div>
+  );
+})}
         </div>
       </div>
     </div>
