@@ -21,9 +21,10 @@ export default function DashboardPage() {
       setUser(session.user);
 
       const { data: fixturesData } = await supabase
-        .from('fixtures')
-        .select('*')
-        .order('start_time', { ascending: true });
+  .from('fixtures')
+  .select('*')
+  .gte('start_time', '2026-01-01')
+  .order('start_time', { ascending: true });
 
       if (fixturesData) setFixtures(fixturesData);
 
@@ -75,6 +76,7 @@ export default function DashboardPage() {
         <h1 className="text-2xl font-bold text-white mb-6">Mecze i Typy</h1>
         <div className="grid gap-4">
           {fixtures.map((fixture) => {
+            console.log("Mecz:", fixture);
             const isMatchLocked = fixture.status !== 'NS' || new Date(fixture.start_time).getTime() <= new Date().getTime();
             const pred = predictions[fixture.id] || { home: '', away: '', points: null };
             
@@ -87,21 +89,22 @@ export default function DashboardPage() {
                 </div>
 
                 {/* Drużyny i Wynik */}
-                <div className="flex items-center justify-between w-full gap-2">
-                  <div className="flex items-center gap-2 flex-1 justify-end truncate">
-                    <span className="truncate text-xs md:text-sm font-bold">{fixture.home_team}</span>
-                    {fixture.home_logo_url && <img src={fixture.home_logo_url} className="w-6 h-6 rounded-full" alt="" />}
+                <div className="flex items-center justify-between w-full gap-2 min-w-0"> {/* Dodane min-w-0 */}
+                  <div className="flex items-center gap-2 flex-1 justify-end min-w-0"> {/* Dodane min-w-0 */}
+                  <span className="truncate text-xs md:text-sm font-bold text-white block">{fixture.home_team}</span>
+                    {fixture.home_logo_url && <img src={fixture.home_logo_url} className="w-6 h-6 rounded-full flex-shrink-0" alt="" />}
                   </div>
                   
                   <div className="px-3 py-1 bg-slate-800 rounded-lg text-yellow-400 font-mono text-sm font-bold whitespace-nowrap">
                     {fixture.status === 'NS' ? 'vs' : `${fixture.home_score} : ${fixture.away_score}`}
                   </div>
 
-                  <div className="flex items-center gap-2 flex-1 justify-start truncate">
-                    {fixture.away_logo_url && <img src={fixture.away_logo_url} className="w-6 h-6 rounded-full" alt="" />}
-                    <span className="truncate text-xs md:text-sm font-bold">{fixture.away_team}</span>
+                                  <div className="flex items-center gap-2 flex-1 justify-start min-w-0"> {/* Dodane min-w-0 */}
+                    {fixture.away_logo_url && <img src={fixture.away_logo_url} className="w-6 h-6 rounded-full flex-shrink-0" alt="" />}
+                    <span className="truncate text-xs md:text-sm font-bold text-white block">{fixture.away_team}</span>
                   </div>
                 </div>
+                
 
                 {/* Typowanie */}
                 <div className="flex items-center justify-center gap-3 w-full border-t border-slate-800 pt-3">
