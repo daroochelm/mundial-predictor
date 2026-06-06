@@ -84,7 +84,12 @@ export default function DashboardPage() {
     if (existing) {
       await supabase.from('predictions').update({ home_score_guess: pred.home, away_score_guess: pred.away }).eq('id', existing.id);
     } else {
-      await supabase.insert({ user_id: user.id, match_id: fixtureId, home_score_guess: pred.home, away_score_guess: pred.away });
+      await supabase.from('predictions').insert({ 
+        user_id: user.id, 
+        match_id: fixtureId, 
+        home_score_guess: pred.home, 
+        away_score_guess: pred.away 
+      });
     }
 
     setMessages((prev) => ({ ...prev, [fixtureId]: 'Zapisano!' }));
