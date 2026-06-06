@@ -4,14 +4,14 @@
         "path": "/api/cron?mode=live",
         "schedule": "* * * * *",
         "headers": {
-          "Authorization": "Bearer f8g9h0j1k2l3m4n5"
+          "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtbW14emxtaHJodWl3bnlndWVoIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTgwMzgxNywiZXhwIjoyMDk1Mzc5ODE3fQ.uftgLvQ1STAjvQq8XpJkvSf-s5_Fi-TxX5s_yQn39JQ"
         }
       },
       {
         "path": "/api/cron?mode=full",
         "schedule": "0 2 * * *",
         "headers": {
-          "Authorization": "Bearer f8g9h0j1k2l3m4n5"
+          "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtbW14emxtaHJodWl3bnlndWVoIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTgwMzgxNywiZXhwIjoyMDk1Mzc5ODE3fQ.uftgLvQ1STAjvQq8XpJkvSf-s5_Fi-TxX5s_yQn39JQ"
         }
       }
     ]
