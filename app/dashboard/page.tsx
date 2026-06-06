@@ -4,29 +4,29 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { useRouter } from 'next/navigation';
 
-const getStatusLabel = (status: string) => {
-  switch (status) {
-    case 'NS': return 'Nie rozpoczęty';
-    case '1H': return '1. połowa';
-    case 'HT': return 'Przerwa';
-    case '2H': return '2. połowa';
-    case 'FT': return 'Koniec';
-    case 'ET': return 'Dogrywka';
-    case 'PST': return 'Przełożony';
-    case 'CANC': return 'Odwołany';
-    default: return status;
-  }
-};
-
 export default function DashboardPage() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
   const [fixtures, setFixtures] = useState<any[]>([]);
   const [predictions, setPredictions] = useState<Record<number, { home: number | string; away: number | string; points?: number | null }>>({});
+  const [messages, setMessages] = useState<Record<number, string>>({}); // Stan dla komunikatów
   const [loading, setLoading] = useState(true);
-  
-  // Stan dla wybranej daty - domyślnie dzisiaj
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+
+  // Funkcja pomocnicza dla statusów
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'NS': return 'Nie rozpoczęty';
+      case '1H': return '1. połowa';
+      case 'HT': return 'Przerwa';
+      case '2H': return '2. połowa';
+      case 'FT': return 'Koniec';
+      case 'ET': return 'Dogrywka';
+      case 'PST': return 'Przełożony';
+      case 'CANC': return 'Odwołany';
+      default: return status;
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -37,7 +37,6 @@ export default function DashboardPage() {
       }
       setUser(session.user);
 
-      // Pobieranie meczów dla wybranego dnia
       const { data: fixturesData } = await supabase
         .from('fixtures')
         .select('*')
@@ -47,7 +46,6 @@ export default function DashboardPage() {
 
       if (fixturesData) setFixtures(fixturesData);
 
-      // Pobieranie typów użytkownika
       const { data: predictionsData } = await supabase
         .from('predictions')
         .select('match_id, home_score_guess, away_score_guess, points_earned')
@@ -64,7 +62,7 @@ export default function DashboardPage() {
     };
 
     fetchData();
-  }, [router, selectedDate]); // Odśwież dane przy zmianie daty
+  }, [router, selectedDate]);
 
   const handlePredictionChange = (fixtureId: number, team: 'home' | 'away', value: string) => {
     const numValue = value === '' ? '' : parseInt(value);
@@ -77,15 +75,18 @@ export default function DashboardPage() {
   const submitPrediction = async (fixtureId: number) => {
     if (!user) return;
     const pred = predictions[fixtureId];
-    if (pred.home === '' || pred.away === '') { alert('Wpisz wynik!'); return; }
+    if (pred.home === '' || pred.away === '') return;
 
     const { data: existing } = await supabase.from('predictions').select('id').eq('user_id', user.id).eq('match_id', fixtureId).maybeSingle();
+    
     if (existing) {
       await supabase.from('predictions').update({ home_score_guess: pred.home, away_score_guess: pred.away }).eq('id', existing.id);
     } else {
       await supabase.from('predictions').insert({ user_id: user.id, match_id: fixtureId, home_score_guess: pred.home, away_score_guess: pred.away });
     }
-    alert('Zapisano!');
+
+    setMessages((prev) => ({ ...prev, [fixtureId]: 'Zapisano!' }));
+    setTimeout(() => setMessages((prev) => ({ ...prev, [fixtureId]: '' })), 3000);
   };
 
   if (loading) return <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center">Ładowanie...</div>;
@@ -95,7 +96,6 @@ export default function DashboardPage() {
       <div className="max-w-3xl mx-auto">
         <h1 className="text-2xl font-bold text-white mb-6">Mecze i Typy</h1>
         
-        {/* Wybór daty */}
         <input 
           type="date" 
           value={selectedDate}
@@ -127,10 +127,9 @@ export default function DashboardPage() {
                       <div className="px-3 py-1 bg-slate-800 rounded-lg text-yellow-400 font-mono text-sm font-bold whitespace-nowrap">
                         {fixture.status === 'NS' ? 'vs' : `${fixture.home_score} : ${fixture.away_score}`}
                       </div>
-                      {/* Wyświetlanie czytelnego statusu pod wynikiem */}
                       <span className="text-[9px] uppercase tracking-wider text-slate-400 font-bold flex items-center gap-1">
-                        {['1H', '2H', 'HT'].includes(fixture.status) && <span className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse" />}
-                        {getStatusLabel(fixture.status)}
+                         {['1H', '2H', 'HT'].includes(fixture.status) && <span className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse" />}
+                         {getStatusLabel(fixture.status)}
                       </span>
                     </div>
 
@@ -140,15 +139,21 @@ export default function DashboardPage() {
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-center gap-3 w-full border-t border-slate-800 pt-3">
-                    <input type="number" disabled={isMatchLocked} value={pred.home ?? ''} onChange={(e) => handlePredictionChange(fixture.id, 'home', e.target.value)} className="w-12 h-10 bg-slate-800 text-center text-white rounded-lg border border-slate-700" />
-                    <span className="text-slate-500">:</span>
-                    <input type="number" disabled={isMatchLocked} value={pred.away ?? ''} onChange={(e) => handlePredictionChange(fixture.id, 'away', e.target.value)} className="w-12 h-10 bg-slate-800 text-center text-white rounded-lg border border-slate-700" />
-                    
-                    {fixture.status === 'FT' ? (
-                      <div className="ml-2 px-3 py-2 bg-green-500/20 text-green-400 rounded-lg text-xs font-bold">{pred.points ?? 0} pkt</div>
-                    ) : (
-                      <button onClick={() => submitPrediction(fixture.id)} disabled={isMatchLocked} className="ml-2 bg-cyan-500 px-4 py-2 rounded-lg text-xs font-bold disabled:opacity-30">Zapisz</button>
+                  <div className="flex flex-col items-center w-full border-t border-slate-800 pt-3">
+                    <div className="flex items-center justify-center gap-3">
+                      <input type="number" disabled={isMatchLocked} value={pred.home ?? ''} onChange={(e) => handlePredictionChange(fixture.id, 'home', e.target.value)} className="w-12 h-10 bg-slate-800 text-center text-white rounded-lg border border-slate-700" />
+                      <span className="text-slate-500">:</span>
+                      <input type="number" disabled={isMatchLocked} value={pred.away ?? ''} onChange={(e) => handlePredictionChange(fixture.id, 'away', e.target.value)} className="w-12 h-10 bg-slate-800 text-center text-white rounded-lg border border-slate-700" />
+                      
+                      {fixture.status === 'FT' ? (
+                        <div className="ml-2 px-3 py-2 bg-green-500/20 text-green-400 rounded-lg text-xs font-bold">{pred.points ?? 0} pkt</div>
+                      ) : (
+                        <button onClick={() => submitPrediction(fixture.id)} disabled={isMatchLocked} className="ml-2 bg-cyan-500 px-4 py-2 rounded-lg text-xs font-bold disabled:opacity-30">Zapisz</button>
+                      )}
+                    </div>
+                    {/* Komunikat "Zapisano" */}
+                    {messages[fixture.id] && (
+                      <div className="mt-2 text-green-400 text-xs font-bold">{messages[fixture.id]}</div>
                     )}
                   </div>
                 </div>
