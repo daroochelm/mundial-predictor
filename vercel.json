@@ -1,0 +1,18 @@
+{
+    "crons": [
+      {
+        "path": "/api/cron?mode=live",
+        "schedule": "* * * * *",
+        "headers": {
+          "Authorization": "Bearer f8g9h0j1k2l3m4n5"
+        }
+      },
+      {
+        "path": "/api/cron?mode=full",
+        "schedule": "0 2 * * *",
+        "headers": {
+          "Authorization": "Bearer f8g9h0j1k2l3m4n5"
+        }
+      }
+    ]
+  }
