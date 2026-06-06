@@ -28,6 +28,8 @@ export default function RankingPage() {
     };
 
     fetchRanking();
+    const interval = setInterval(fetchRanking, 60000);
+      return () => clearInterval(interval);
   }, []);
 
   if (loading) {

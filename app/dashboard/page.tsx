@@ -30,21 +30,25 @@ export default function DashboardPage() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) { router.push('/login'); return; }
       setUser(session.user);
-
-      const { data: fixturesData } = await supabase
+    
+      // Dodajemy .rescan() lub po prostu upewniamy się, że to świeże zapytanie
+      const { data: fixturesData, error } = await supabase
         .from('fixtures')
-        .select('*')
+        .select('*', { count: 'exact' }) // Dodatkowe pole, które często wymusza odświeżenie
         .gte('start_time', `${selectedDate}T00:00:00`)
         .lte('start_time', `${selectedDate}T23:59:59`)
         .order('start_time', { ascending: true });
-
-      if (fixturesData) setFixtures(fixturesData);
-
+    
+      if (fixturesData) {
+        setFixtures(fixturesData);
+      }
+    
+      // To samo dla typów
       const { data: predictionsData } = await supabase
         .from('predictions')
         .select('match_id, home_score_guess, away_score_guess, points_earned')
         .eq('user_id', session.user.id);
-
+    
       if (predictionsData) {
         const predsObj: Record<number, any> = {};
         predictionsData.forEach((p) => {
@@ -54,7 +58,12 @@ export default function DashboardPage() {
       }
       setLoading(false);
     };
+
     fetchData();
+
+    // Automatyczne odświeżanie co 30 sekund
+    const interval = setInterval(fetchData, 30000);
+    return () => clearInterval(interval);
   }, [router, selectedDate]);
 
   const handlePredictionChange = (fixtureId: number, team: 'home' | 'away', value: string) => {
@@ -85,7 +94,7 @@ export default function DashboardPage() {
   if (loading) return <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center">Ładowanie...</div>;
 
   return (
-    <div className="min-h-screen bg-slate-750 bg-fixed bg-cover bg-center" 
+    <div className="min-h-screen bg-slate-950 bg-fixed bg-cover bg-center" 
          style={{ backgroundImage: "linear-gradient(rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.85)), url('/bg-football.jpg')" }}>
       
       <div className="max-w-3xl mx-auto p-4 md:p-6 min-h-screen backdrop-blur-sm border-x border-slate-800/50">
