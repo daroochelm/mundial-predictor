@@ -35,7 +35,7 @@ export default function DashboardPage() {
       const { data: fixturesData, error } = await supabase
         .from('fixtures')
         .select('*', { count: 'exact' }) // Dodatkowe pole, które często wymusza odświeżenie
-        .eq('league_id', 10)
+        .in('league_id', [10, 340, 99])
         .gte('start_time', `${selectedDate}T00:00:00`)
         .lte('start_time', `${selectedDate}T23:59:59`)
         .order('start_time', { ascending: true });
