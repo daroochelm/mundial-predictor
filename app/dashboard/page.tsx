@@ -26,14 +26,14 @@ export default function DashboardPage() {
     if (!session) { router.push('/login'); return; }
     setUser(session.user);
 
-    const { data: fixturesData } = await supabase
-      .from('fixtures')
-      .select('*')
-      .eq('league_id', 1)
-      .eq('season', 2026)
-      .gte('start_time', '2026-06-11T00:00:00')
-      .lte('start_time', '2026-06-27T23:59:59')
-      .order('start_time', { ascending: true });
+    const { data: fixturesData, error } = await supabase
+  .from('fixtures')
+  .select('*')
+  .eq('season', 2026)
+  .eq('league_id',1)
+  .order('start_time', { ascending: true });
+
+  
 
     if (fixturesData) {
       setFixtures(fixturesData);
