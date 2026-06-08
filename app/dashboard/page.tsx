@@ -62,19 +62,27 @@ export default function DashboardPage() {
 
   const handlePredictionChange = (fixtureId: number, team: 'home' | 'away', value: string) => {
     const numValue = value === '' ? '' : parseInt(value);
+    
     if (typeof numValue === 'number' && numValue < 0) return;
+  
     setPredictions(prev => ({
       ...prev,
-      [fixtureId]: { ...(prev[fixtureId] || { home: '', away: '' }), [team]: numValue },
+      [fixtureId]: { 
+        ...(prev[fixtureId] || { home: '', away: '' }), 
+        [team]: numValue 
+      },
     }));
   };
 
   const submitPrediction = async (fixtureId: number) => {
     if (!user) return;
-    const pred = predictions[fixtureId];
-    if (pred.home === '' || pred.away === '') return;
+    const pred = predictions[fixtureId] || { home: '', away: '' };
+   // Dodatkowe zabezpieczenie: jeśli oba pola są puste, nie wysyłaj zapytania
+  if (pred.home === '' || pred.home === undefined || pred.away === '' || pred.away === undefined) {
+    return;
+  }
 
-    const { data: existing } = await supabase.from('predictions').select('id').eq('user_id', user.id).eq('match_id', fixtureId).maybeSingle();
+  const { data: existing } = await supabase.from('predictions').select('id').eq('user_id', user.id).eq('match_id', fixtureId).maybeSingle();
     
     if (existing) {
       await supabase.from('predictions').update({ home_score_guess: pred.home, away_score_guess: pred.away }).eq('id', existing.id);
