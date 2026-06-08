@@ -12,7 +12,7 @@ export default function DashboardPage() {
   const [predictions, setPredictions] = useState<Record<number, any>>({});
   const [messages, setMessages] = useState<Record<number, string>>({});
   const [isInitialLoading, setIsInitialLoading] = useState(true);
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+  const [selectedDate, setSelectedDate] = useState('2026-06-11');
 
   const getStatusLabel = (status: string) => {
     const labels: Record<string, string> = { 'NS': 'Nie rozpoczęty', '1H': '1. połowa', 'HT': 'Przerwa', '2H': '2. połowa', 'FT': 'Koniec', 'ET': 'Dogrywka' };
@@ -29,9 +29,9 @@ export default function DashboardPage() {
     const { data: fixturesData } = await supabase
       .from('fixtures')
       .select('*')
-      .in('league_id', [10, 340, 99])
-      .gte('start_time', `${selectedDate}T00:00:00`)
-      .lte('start_time', `${selectedDate}T23:59:59`)
+      .eq('league_id', 1)
+      .gte('start_time', '2026-06-11T00:00:00')
+      .lte('start_time', '2026-06-27T23:59:59')
       .order('start_time', { ascending: true });
 
     if (fixturesData) {
