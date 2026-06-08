@@ -30,6 +30,7 @@ export default function DashboardPage() {
       .from('fixtures')
       .select('*')
       .eq('league_id', 1)
+      .eq('season', 2026)
       .gte('start_time', '2026-06-11T00:00:00')
       .lte('start_time', '2026-06-27T23:59:59')
       .order('start_time', { ascending: true });
