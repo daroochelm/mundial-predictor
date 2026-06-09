@@ -70,7 +70,7 @@ export default function RankingPage() {
                   >
                     <div className="flex items-center gap-4">
                       
-                      <div className={`w-10 h-10 flex items-center justify-center rounded-full font-bold text-xl ${
+                      <div className={`w-8 h-8 flex items-center justify-center rounded-full font-bold text-xl ${
                         position === 1 ? 'bg-yellow-500 text-slate-900 shadow-[0_0_15px_rgba(234,179,8,0.5)]' :
                         position === 2 ? 'bg-slate-300 text-slate-900 shadow-[0_0_15px_rgba(203,213,225,0.3)]' :
                         position === 3 ? 'bg-amber-600 text-slate-900 shadow-[0_0_15px_rgba(217,119,6,0.3)]' :
