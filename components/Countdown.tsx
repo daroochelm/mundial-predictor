@@ -2,7 +2,7 @@ import React from 'react';
 import Countdown, { CountdownRenderProps } from 'react-countdown';
 
 const WorldCupCountdown = () => {
-  const wcDate = new Date('2026-06-11T21:00:00Z');
+  const wcDate = new Date('2026-06-11T19:00:00Z');
 
   // Funkcja renderująca własny format
   const renderer = ({ days, hours, minutes, seconds, completed }: CountdownRenderProps) => {
