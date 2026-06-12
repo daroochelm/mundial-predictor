@@ -8,17 +8,11 @@ export default function PredictionsBoard() {
 
   useEffect(() => {
     async function fetchAllPredictions() {
-      const { data, error } = await supabase
+        const { data, error } = await supabase
         .from('predictions')
-        .select(`
-          home_score_guess, 
-          away_score_guess, 
-          match_id, 
-          users(display_name),
-          fixtures(home_team, away_team, start_time)
-        `)
+        .select('*') // Pobierz wszystko z tej jednej tabeli
         .order('created_at', { ascending: false });
-        if (error) console.error("Błąd Supabase:", error);
+        if (error) console.error("Błąd Supabase (szczegóły):", error);
         console.log("Pobrane typy:", data);
       if (data) setData(data);
     }
