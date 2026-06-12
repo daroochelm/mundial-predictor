@@ -49,6 +49,14 @@ export default function Navbar() {
           >
             Ranking
           </Link>
+          <Link 
+            href="/prediction-board" 
+            className={`font-medium transition-colors ${
+              pathname === '/ranking' ? 'text-yellow-400' : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            Typy innych
+          </Link>
         </div>
 
         {/* Przycisk wylogowania */}
