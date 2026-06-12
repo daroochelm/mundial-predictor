@@ -8,7 +8,7 @@ export default function PredictionsBoard() {
 
   useEffect(() => {
     async function fetchAllPredictions() {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('predictions')
         .select(`
           home_score_guess, 
@@ -18,7 +18,8 @@ export default function PredictionsBoard() {
           fixtures(home_team, away_team, start_time)
         `)
         .order('created_at', { ascending: false });
-      
+        if (error) console.error("Błąd Supabase:", error);
+        console.log("Pobrane typy:", data);
       if (data) setData(data);
     }
     fetchAllPredictions();
