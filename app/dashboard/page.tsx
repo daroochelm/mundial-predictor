@@ -14,7 +14,12 @@ export default function DashboardPage() {
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   
   // Zakładki: przechowujemy datę wybraną w zakładce
-  const [selectedDate, setSelectedDate] = useState('2026-06-11');
+  const [selectedDate, setSelectedDate] = useState(() => {
+    const today = new Date().toISOString().split('T')[0];
+      if (today < '2026-06-11') return '2026-06-11';
+    if (today > '2026-06-27') return '2026-06-27';
+    return today;
+  });
 
   // Pobieramy unikalne daty z meczów, aby wygenerować zakładki
   const availableDates = useMemo(() => {
