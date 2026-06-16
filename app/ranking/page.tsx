@@ -82,7 +82,7 @@ export default function RankingPage() {
                       <div className="font-medium text-slate-200 text-lg tracking-wide">
                         {displayName}
                         {/* Dodajemy mały znacznik dla osób bez nicku */}
-                        {!player.username && <span className="ml-2 text-xs text-slate-500 font-normal">(New)</span>}
+                        {!player.username && <span className="ml-2 text-xs text-slate-500 font-normal"></span>}
                       </div>
                     </div>
 
