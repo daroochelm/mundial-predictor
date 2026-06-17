@@ -13,27 +13,24 @@ export default function DashboardPage() {
   const [messages, setMessages] = useState<Record<number, string>>({});
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   
-  // Zakładki: przechowujemy datę wybraną w zakładce
   const [selectedDate, setSelectedDate] = useState(() => {
     const today = new Date().toISOString().split('T')[0];
-      if (today < '2026-06-11') return '2026-06-11';
+    if (today < '2026-06-11') return '2026-06-11';
     if (today > '2026-06-27') return '2026-06-27';
     return today;
   });
 
-  // Pobieramy unikalne daty z meczów, aby wygenerować zakładki
   const availableDates = useMemo(() => {
     const dates = Array.from(new Set(fixtures.map(f => f.start_time.split('T')[0]))).sort();
     return dates;
   }, [fixtures]);
 
-  // Filtrujemy mecze dla wybranej daty
   const filteredFixtures = useMemo(() => {
     return fixtures.filter(f => f.start_time.startsWith(selectedDate));
   }, [fixtures, selectedDate]);
 
   const getStatusLabel = (status: string) => {
-    const labels: Record<string, string> = { 'NS': 'Nie rozpoczęty', '1H': '1. połowa', 'HT': 'Przerwa', '2H': '2. połowa', 'FT': 'Koniec', 'ET': 'Dogrywka' };
+    const labels: Record<string, string> = { 'NS': 'Nie rozpoczęty', '1H': '1. połowa', 'HT': 'Przerwa', '2H': '2. połowa', 'FT': 'Koniec', 'ET': 'Dogrywka', 'P': 'Karne' };
     return labels[status] || status;
   };
 
@@ -44,7 +41,6 @@ export default function DashboardPage() {
     if (!session) { router.push('/login'); return; }
     setUser(session.user);
 
-    // Pobieramy wszystkie mecze fazy grupowej
     const { data: fixturesData } = await supabase
       .from('fixtures')
       .select('*')
@@ -108,7 +104,6 @@ export default function DashboardPage() {
         <h1 className="text-3xl font-extrabold text-center mb-4 uppercase">Typer 2026</h1>
         <WorldCupCountdown />
         
-        {/* Zakładki z datami */}
         <div className="flex overflow-x-auto gap-2 pb-4 mt-6 scrollbar-hide">
           {availableDates.map(date => (
             <button
@@ -124,25 +119,46 @@ export default function DashboardPage() {
         <div className="grid gap-4 mt-4">
           {filteredFixtures.map((fixture) => {
             const isMatchLocked = fixture.status !== 'NS' || new Date(fixture.start_time).getTime() <= new Date().getTime();
+            const isLive = ['1H', '2H', 'ET', 'P'].includes(fixture.status);
             const pred = predictions[fixture.id] || { home: '', away: '', points: null };
             
             return (
               <div key={fixture.id} className="bg-slate-900 border border-slate-700 rounded-3xl p-6">
-                {/* ... (Twój obecny kod wyświetlania meczu pozostaje bez zmian) ... */}
                 <div className="flex justify-between items-center mb-4">
                   <span className="text-xs text-slate-400">{new Date(fixture.start_time).toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' })}</span>
-                  <span className="text-[10px] bg-slate-800 px-2 py-1 rounded">{getStatusLabel(fixture.status)}</span>
+                  
+                  {/* Status LIVE */}
+                  <div className="flex items-center gap-2">
+                    {isLive && (
+                      <span className="relative flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                      </span>
+                    )}
+                    <span className={`text-[10px] px-2 py-1 rounded font-bold ${isLive ? 'bg-red-500/20 text-red-500' : 'bg-slate-800 text-slate-400'}`}>
+                      {isLive ? 'LIVE' : getStatusLabel(fixture.status)}
+                    </span>
+                  </div>
                 </div>
+
                 <div className="flex justify-between items-center gap-4 text-center">
-                  <div className="flex flex-col items-center gap-2 flex-1"><img src={fixture.home_logo_url} className="w-10 h-10 rounded-full" /><span className="text-sm truncate font-bold">{fixture.home_team}</span></div>
+                  <div className="flex flex-col items-center gap-2 flex-1"><img src={fixture.home_logo_url} className="w-10 h-10 rounded-full" alt="home" /><span className="text-sm truncate font-bold">{fixture.home_team}</span></div>
                   <div className="font-mono text-xl">
                     {fixture.status === 'NS' 
                       ? 'VS' 
-                      : `${fixture.home_score}:${fixture.away_score} ${fixture.halftime_score ? `(${fixture.halftime_score})` : ''}`
+                      : (
+                        <div className="flex flex-col items-center">
+                          <span>{fixture.home_score}:{fixture.away_score}</span>
+                          {fixture.halftime_score && (
+                            <span className="text-[10px] text-slate-500">(HT: {fixture.halftime_score})</span>
+                          )}
+                        </div>
+                      )
                     }
                   </div>
-                  <div className="flex flex-col items-center gap-2 flex-1"><img src={fixture.away_logo_url} className="w-10 h-10 rounded-full" /><span className="text-sm truncate font-bold">{fixture.away_team}</span></div>
+                  <div className="flex flex-col items-center gap-2 flex-1"><img src={fixture.away_logo_url} className="w-10 h-10 rounded-full" alt="away" /><span className="text-sm truncate font-bold">{fixture.away_team}</span></div>
                 </div>
+
                 <div className="flex items-center justify-center gap-4 mt-6">
                   <input type="number" min="0" disabled={isMatchLocked} value={pred.home ?? ''} onChange={(e) => handlePredictionChange(fixture.id, 'home', e.target.value)} onBlur={() => !isMatchLocked && submitPrediction(fixture.id)} className="w-16 h-12 bg-slate-950 text-center rounded-lg border border-slate-700" />
                   <input type="number" min="0" disabled={isMatchLocked} value={pred.away ?? ''} onChange={(e) => handlePredictionChange(fixture.id, 'away', e.target.value)} onBlur={() => !isMatchLocked && submitPrediction(fixture.id)} className="w-16 h-12 bg-slate-950 text-center rounded-lg border border-slate-700" />
