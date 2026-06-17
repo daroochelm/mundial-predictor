@@ -135,7 +135,12 @@ export default function DashboardPage() {
                 </div>
                 <div className="flex justify-between items-center gap-4 text-center">
                   <div className="flex flex-col items-center gap-2 flex-1"><img src={fixture.home_logo_url} className="w-10 h-10 rounded-full" /><span className="text-sm truncate font-bold">{fixture.home_team}</span></div>
-                  <div className="font-mono text-xl">{fixture.status === 'NS' ? 'VS' : `${fixture.home_score}:${fixture.away_score}`}</div>
+                  <div className="font-mono text-xl">
+                    {fixture.status === 'NS' 
+                      ? 'VS' 
+                      : `${fixture.home_score}:${fixture.away_score} ${fixture.halftime_score ? `(${fixture.halftime_score})` : ''}`
+                    }
+                  </div>
                   <div className="flex flex-col items-center gap-2 flex-1"><img src={fixture.away_logo_url} className="w-10 h-10 rounded-full" /><span className="text-sm truncate font-bold">{fixture.away_team}</span></div>
                 </div>
                 <div className="flex items-center justify-center gap-4 mt-6">
