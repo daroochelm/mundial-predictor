@@ -119,7 +119,7 @@ export default function DashboardPage() {
         <div className="grid gap-4 mt-4">
           {filteredFixtures.map((fixture) => {
             const isMatchLocked = fixture.status !== 'NS' || new Date(fixture.start_time).getTime() <= new Date().getTime();
-            const isLive = ['1H', '2H', 'ET', 'P'].includes(fixture.status);
+            const isLive = ['1H', '2H', 'HT' ,'ET', 'P'].includes(fixture.status);
             const pred = predictions[fixture.id] || { home: '', away: '', points: null };
             
             return (
