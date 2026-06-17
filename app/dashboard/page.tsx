@@ -143,19 +143,19 @@ export default function DashboardPage() {
 
                 <div className="flex justify-between items-center gap-4 text-center">
                   <div className="flex flex-col items-center gap-2 flex-1"><img src={fixture.home_logo_url} className="w-10 h-10 rounded-full" alt="home" /><span className="text-sm truncate font-bold">{fixture.home_team}</span></div>
-                  <div className="font-mono text-xl">
-                    {fixture.status === 'NS' 
-                      ? 'VS' 
-                      : (
-                        <div className="flex flex-col items-center">
-                          <span>{fixture.home_score}:{fixture.away_score}</span>
-                          {fixture.halftime_score && (
-                            <span className="text-[10px] text-slate-500">(HT: {fixture.halftime_score})</span>
-                          )}
-                        </div>
-                      )
-                    }
-                  </div>
+                  <div className={`font-mono text-xl ${isLive ? 'text-red-500 font-bold' : 'text-white'}`}>
+                      {fixture.status === 'NS' 
+                        ? 'VS' 
+                        : (
+                          <div className="flex flex-col items-center">
+                            <span>{fixture.home_score}:{fixture.away_score}</span>
+                            {fixture.halftime_score && (
+                              <span className="text-[10px] text-slate-500">(HT: {fixture.halftime_score})</span>
+                            )}
+                          </div>
+                        )
+                      }
+                    </div>
                   <div className="flex flex-col items-center gap-2 flex-1"><img src={fixture.away_logo_url} className="w-10 h-10 rounded-full" alt="away" /><span className="text-sm truncate font-bold">{fixture.away_team}</span></div>
                 </div>
 
