@@ -35,14 +35,22 @@ export default function DashboardPage() {
   });
 
   const availableDates = useMemo(() => {
-    const dates = Array.from(new Set(fixtures.map(f => f.start_time.split('T')[0]))).sort();
-    return dates;
+    const dates = new Set(fixtures.map(f => {
+      // Tworzymy datę z UTC i dodajemy 2 godziny (Polska latem)
+      const date = new Date(f.start_time);
+      date.setHours(date.getHours() + 2); 
+      return date.toISOString().split('T')[0];
+    }));
+    return Array.from(dates).sort();
   }, [fixtures]);
 
   const filteredFixtures = useMemo(() => {
-    return fixtures.filter(f => f.start_time.startsWith(selectedDate));
+    return fixtures.filter(f => {
+      const date = new Date(f.start_time);
+      date.setHours(date.getHours() + 2);
+      return date.toISOString().split('T')[0] === selectedDate;
+    });
   }, [fixtures, selectedDate]);
-
   const getStatusLabel = (status: string) => {
     const labels: Record<string, string> = { 'NS': 'Nie rozpoczęty', '1H': '1. połowa', 'HT': 'Przerwa', '2H': '2. połowa', 'FT': 'Koniec', 'ET': 'Dogrywka', 'P': 'Karne', 'AET': 'Dogrywka' };
     return labels[status] || status;
@@ -155,7 +163,13 @@ setEvents(eventsData || []);
             return (
               <div key={fixture.id} className="bg-slate-900 border border-slate-700 rounded-3xl p-6">
                 <div className="flex justify-between items-center mb-4">
-                  <span className="text-xs text-slate-400">{new Date(fixture.start_time).toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' })}</span>
+                <span className="text-xs text-slate-400">
+                    {(() => {
+                      const d = new Date(fixture.start_time);
+                      d.setHours(d.getHours() + 2);
+                      return d.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
+                    })()}
+                  </span>
                   
                   <div className="flex items-center gap-2">
                     {isLive && (
