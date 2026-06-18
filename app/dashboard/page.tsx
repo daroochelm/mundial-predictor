@@ -46,9 +46,10 @@ export default function DashboardPage() {
 
   const filteredFixtures = useMemo(() => {
     return fixtures.filter(f => {
-      const date = new Date(f.start_time);
-      date.setHours(date.getHours() + 2);
-      return date.toISOString().split('T')[0] === selectedDate;
+      // Zamieniamy na datę w czasie polskim
+      const d = new Date(f.start_time);
+      const polandDate = d.toLocaleDateString('en-CA', { timeZone: 'Europe/Warsaw' }); 
+      return polandDate === selectedDate;
     });
   }, [fixtures, selectedDate]);
   const getStatusLabel = (status: string) => {
