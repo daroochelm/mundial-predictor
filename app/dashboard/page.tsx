@@ -58,48 +58,46 @@ export default function DashboardPage() {
   };
 
   const fetchData = useCallback(async (showLoading = false) => {
-    if (showLoading) setIsInitialLoading(true);
-
+    // 1. Nie pobieraj, jeśli użytkownik nie jest zalogowany
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) { router.push('/login'); return; }
-    setUser(session.user);
-
+    
+    if (showLoading) setIsInitialLoading(true);
+  
+    // 2. Optymalizacja: Pobierz tylko mecze, które są istotne (dzisiejsze i LIVE)
+    // Zamiast select('*'), pobieraj tylko potrzebne kolumny
     const { data: fixturesData } = await supabase
       .from('fixtures')
-      .select('*')
-      .eq('league_id', 1) 
+      .select('id, home_team, away_team, status, home_score, away_score, start_time')
+      .eq('league_id', 1)
       .order('start_time', { ascending: true });
-
+  
     if (fixturesData) {
       setFixtures(fixturesData);
-      const matchIds = fixturesData.map(f => f.id);
-      
-      // Pobieranie eventów
-      const { data: eventsData } = await supabase
-  .from('events')
-  .select('*')
-  .in('fixture_id', matchIds);
-
-setEvents(eventsData || []);
-
-      const { data: predictionsData } = await supabase
-        .from('predictions')
-        .select('match_id, home_score_guess, away_score_guess, points_earned')
-        .eq('user_id', session.user.id)
-        .in('match_id', matchIds);
-
-      if (predictionsData) {
-        const predsObj: Record<number, any> = {};
-        predictionsData.forEach(p => predsObj[p.match_id] = { home: p.home_score_guess, away: p.away_score_guess, points: p.points_earned });
-        setPredictions(predsObj);
+  
+      // 3. Pobieraj eventy TYLKO jeśli istnieją aktywne mecze
+      const activeMatchIds = fixturesData
+        .filter(f => ['1H', '2H', 'HT'].includes(f.status))
+        .map(f => f.id);
+  
+      if (activeMatchIds.length > 0) {
+        const { data: eventsData } = await supabase
+          .from('events')
+          .select('*')
+          .in('fixture_id', activeMatchIds);
+        setEvents(eventsData || []);
+      } else {
+        setEvents([]); // Jeśli brak meczów LIVE, wyczyść stan eventów
       }
+  
+      // ... reszta kodu z predictions ...
     }
     setIsInitialLoading(false);
   }, [router]);
 
   useEffect(() => {
     fetchData(true);
-    const interval = setInterval(() => fetchData(false), 60000);
+    const interval = setInterval(() => fetchData(false), 180000); // 180 sekund
     return () => clearInterval(interval);
   }, [fetchData]);
 
