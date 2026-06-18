@@ -207,25 +207,25 @@ setEvents(eventsData || []);
   const isHome = ev.team_name === fixture.home_team;
   
   return (
-    <div key={idx} className="flex items-center text-sm my-2">
+    <div key={idx} className="flex items-center text-xs md:text-sm my-2">
       {/* Kolumna gospodarza (lewa) - zawsze zajmuje 50% */}
-      <div className="flex-1 flex items-center justify-start gap-2">
+      <div className="flex-1 flex items-center justify-start gap-1 md:gap-2">
         {isHome && (
           <>
-            <span className="text-cyan-500 font-bold w-8">{ev.minute}'</span>
-            <span className="text-slate-200">{ev.player_name}</span>
+            <span className="text-cyan-500 font-bold w-6 md:w-8">{ev.minute}'</span>
+            <span className="text-slate-200 truncate max-w-[80px] md:max-w-none">{ev.player_name}</span>
             {renderEventIcon(ev.event_type, ev.extra_info)}
           </>
         )}
       </div>
 
       {/* Kolumna gościa (prawa) - zawsze zajmuje 50% */}
-      <div className="flex-1 flex items-center justify-end gap-2">
+      <div className="flex-1 flex items-center justify-end gap-1 md:gap-2">
         {!isHome && (
           <>
             {renderEventIcon(ev.event_type, ev.extra_info)}
-            <span className="text-slate-200">{ev.player_name}</span>
-            <span className="text-cyan-500 font-bold w-8">{ev.minute}'</span>
+            <span className="text-slate-200 truncate max-w-[80px] md:max-w-none">{ev.player_name}</span>
+            <span className="text-cyan-500 font-bold w-6 md:w-8">{ev.minute}'</span>
           </>
         )}
       </div>
