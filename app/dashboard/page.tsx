@@ -164,12 +164,12 @@ setEvents(eventsData || []);
               <div key={fixture.id} className="bg-slate-900 border border-slate-700 rounded-3xl p-6">
                 <div className="flex justify-between items-center mb-4">
                 <span className="text-xs text-slate-400">
-                    {(() => {
-                      const d = new Date(fixture.start_time);
-                      d.setHours(d.getHours() + 2);
-                      return d.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
-                    })()}
-                  </span>
+  {new Date(fixture.start_time).toLocaleTimeString('pl-PL', { 
+    hour: '2-digit', 
+    minute: '2-digit',
+    timeZone: 'Europe/Warsaw' // Wymuszenie czasu polskiego
+  })}
+</span>
                   
                   <div className="flex items-center gap-2">
                     {isLive && (
