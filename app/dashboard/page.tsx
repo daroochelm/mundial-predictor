@@ -105,7 +105,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     fetchData(true);
-    const interval = setInterval(() => fetchData(false), 180000); // 180 sekund
+    const interval = setInterval(() => fetchData(false), 6000); // 180 sekund
     return () => clearInterval(interval);
   }, [fetchData]);
 

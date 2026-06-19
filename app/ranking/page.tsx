@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 
-// ZAKTUALIZOWANY TYP: dodaliśmy username
 interface RankEntry {
   user_id: string;
   user_email: string;
@@ -17,6 +16,7 @@ export default function RankingPage() {
 
   useEffect(() => {
     const fetchRanking = async () => {
+      // Wywołujemy zaktualizowaną funkcję RPC, która liczy punkty w locie (LIVE)
       const { data, error } = await supabase.rpc('get_leaderboard');
       
       if (error) {
@@ -28,19 +28,31 @@ export default function RankingPage() {
     };
 
     fetchRanking();
+    
+    // Automatyczne odświeżanie tabeli co 60 sekund w trakcie trwania meczu
     const interval = setInterval(fetchRanking, 60000);
-      return () => clearInterval(interval);
+    return () => clearInterval(interval);
   }, []);
 
   if (loading) {
-    return <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center">Podliczanie wyników...</div>;
+    return (
+      <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center font-medium tracking-wide">
+        Podliczanie wyników na żywo...
+      </div>
+    );
   }
 
   return (
     <div className="min-h-screen bg-slate-950 p-6">
       <div className="max-w-3xl mx-auto">
         
-        <header className="mb-10 text-center border-b border-slate-800 pb-6">
+        <header className="mb-10 text-center border-b border-slate-800 pb-6 relative">
+          {/* Pulsujący wskaźnik LIVE */}
+          <div className="absolute top-0 right-4 flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/30 px-3 py-1 rounded-full text-xs font-bold text-emerald-400 uppercase tracking-widest animate-pulse">
+            <span className="w-2 h-2 bg-emerald-400 rounded-full inline-block"></span>
+            Live
+          </div>
+
           <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-yellow-600">
             Ranking Typerów 🏆
           </h1>
@@ -61,33 +73,34 @@ export default function RankingPage() {
                 return (
                   <div 
                     key={player.user_id} 
-                    className={`flex items-center justify-between p-4 rounded-xl border ${
-                      position === 1 ? 'bg-yellow-500/10 border-yellow-500/50' :
-                      position === 2 ? 'bg-slate-300/10 border-slate-400/30' :
-                      position === 3 ? 'bg-amber-700/10 border-amber-700/30' :
-                      'bg-slate-950 border-slate-800'
-                    } transition-all hover:bg-slate-800`}
+                    className={`flex items-center justify-between p-4 rounded-xl border transition-all duration-300 hover:bg-slate-800/70 ${
+                      position === 1 ? 'bg-yellow-500/10 border-yellow-500/40 shadow-[inset_0_0_12px_rgba(234,179,8,0.05)]' :
+                      position === 2 ? 'bg-slate-300/10 border-slate-400/20' :
+                      position === 3 ? 'bg-amber-700/10 border-amber-700/20' :
+                      'bg-slate-950 border-slate-850'
+                    }`}
                   >
                     <div className="flex items-center gap-4">
                       
-                      <div className={`w-6 h-6 flex items-center justify-center rounded-full font-bold text-xl ${
-                        position === 1 ? 'bg-yellow-500 text-slate-900 shadow-[0_0_15px_rgba(234,179,8,0.5)]' :
-                        position === 2 ? 'bg-slate-300 text-slate-900 shadow-[0_0_15px_rgba(203,213,225,0.3)]' :
-                        position === 3 ? 'bg-amber-600 text-slate-900 shadow-[0_0_15px_rgba(217,119,6,0.3)]' :
-                        'bg-slate-800 text-slate-400'
+                      {/* Ikona pozycji lub numer */}
+                      <div className={`w-8 h-8 flex items-center justify-center rounded-full font-bold text-lg ${
+                        position === 1 ? 'bg-yellow-500 text-slate-900 shadow-[0_0_15px_rgba(234,179,8,0.4)]' :
+                        position === 2 ? 'bg-slate-300 text-slate-900 shadow-[0_0_15px_rgba(203,213,225,0.2)]' :
+                        position === 3 ? 'bg-amber-600 text-slate-900 shadow-[0_0_15px_rgba(217,119,6,0.2)]' :
+                        'bg-slate-800 text-slate-400 text-sm'
                       }`}>
                         {position === 1 ? '🥇' : position === 2 ? '🥈' : position === 3 ? '🥉' : position}
                       </div>
                       
                       <div className="font-medium text-slate-200 text-lg tracking-wide">
                         {displayName}
-                        {/* Dodajemy mały znacznik dla osób bez nicku */}
-                        {!player.username && <span className="ml-2 text-xs text-slate-500 font-normal"></span>}
                       </div>
                     </div>
 
-                    <div className="text-3xl font-black text-cyan-400">
-                      {player.total_points} <span className="text-sm font-medium text-slate-500">pkt</span>
+                    {/* Liczba punktów */}
+                    <div className="text-3xl font-black text-cyan-400 tracking-tight flex items-baseline gap-1">
+                      {player.total_points} 
+                      <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">pkt</span>
                     </div>
                   </div>
                 );
