@@ -78,9 +78,15 @@ export default function DashboardPage() {
       const { data: eventsData } = await supabase
         .from('events')
         .select('*')
-        .in('fixture_id', matchIds)
-        .order('minute', { ascending: true });
-setEvents(eventsData || []);
+        .in('fixture_id', matchIds);
+        
+        if (eventsData) {
+          // Sortujemy tablicę ręcznie w JS: od najniższej minuty do najwyższej
+          const sortedEvents = [...eventsData].sort((a, b) => a.minute - b.minute);
+          setEvents(sortedEvents);
+        } else {
+          setEvents([]);
+        }
 
       const { data: predictionsData } = await supabase
         .from('predictions')
@@ -159,7 +165,7 @@ setEvents(eventsData || []);
             const matchEvents = events
   .filter(e => Number(e.fixture_id) === Number(fixture.id))
   .filter(e => !['subst', 'Var'].includes(e.event_type)) // Dodajemy 'Var' do listy ignorowanych
-  .sort((a, b) => b.minute - a.minute);
+  .sort((a, b) => a.minute - b.minute);
                           
             return (
               <div key={fixture.id} className="bg-slate-900 border border-slate-700 rounded-3xl p-6">
