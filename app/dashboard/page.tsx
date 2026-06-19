@@ -76,10 +76,10 @@ export default function DashboardPage() {
       
       // Pobieranie eventów
       const { data: eventsData } = await supabase
-  .from('events')
-  .select('*')
-  .in('fixture_id', matchIds);
-
+        .from('events')
+        .select('*')
+        .in('fixture_id', matchIds)
+        .order('minute', { ascending: true });
 setEvents(eventsData || []);
 
       const { data: predictionsData } = await supabase
