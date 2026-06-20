@@ -21,8 +21,8 @@ export default function MatchCard({ homeTeam, awayTeam, homeScore, awayScore, st
           <div className="px-3 py-1 rounded-full bg-slate-950/50 border border-white/5 flex items-center gap-2">
             {isLive && <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />}
             <span className="text-red-500 text-[10px] font-bold uppercase tracking-widest">
-              {isLive ? `${minute}'` : status === 'NS' ? 'Nie rozpoczęty' : status}
-            </span>
+  {status === 'HT' ? 'HT' : isLive ? `${minute}'` : status === 'NS' ? 'Nie rozpoczęty' : status}
+</span>
           </div>
         </div>
 
