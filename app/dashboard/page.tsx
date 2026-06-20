@@ -104,14 +104,30 @@ export default function DashboardPage() {
                   startTime={fixture.start_time} halftimeScore={fixture.halftime_score}
                 />
                 <div className="flex items-center justify-center gap-4 mt-4 mb-2">
-                  <input type="number" disabled={isMatchLocked} value={pred.home ?? ''} onChange={(e) => setPredictions(p => ({...p, [fixture.id]: {...p[fixture.id], home: e.target.value}}))} onBlur={() => submitPrediction(fixture.id)} className="w-16 h-12 bg-slate-950 text-center rounded-lg border border-slate-700" />
-                  <input type="number" disabled={isMatchLocked} value={pred.away ?? ''} onChange={(e) => setPredictions(p => ({...p, [fixture.id]: {...p[fixture.id], away: e.target.value}}))} onBlur={() => submitPrediction(fixture.id)} className="w-16 h-12 bg-slate-950 text-center rounded-lg border border-slate-700" />{pred.points !== null && (
-                  <span className="text-green-400 font-bold bg-green-400/10 px-3 py-1 rounded-full text-xs">
-                    +{pred.points} pkt
-                  </span>
-        )}  
-                   
-                </div>
+                    <input 
+                      type="number" 
+                      disabled={isMatchLocked} 
+                      value={pred.home ?? ''} 
+                      onChange={(e) => setPredictions(p => ({...p, [fixture.id]: {...p[fixture.id], home: e.target.value}}))} 
+                      onBlur={() => submitPrediction(fixture.id)} 
+                      className="w-16 h-12 bg-slate-950 text-center rounded-lg border border-slate-700" 
+                    />
+                    <input 
+                      type="number" 
+                      disabled={isMatchLocked} 
+                      value={pred.away ?? ''} 
+                      onChange={(e) => setPredictions(p => ({...p, [fixture.id]: {...p[fixture.id], away: e.target.value}}))} 
+                      onBlur={() => submitPrediction(fixture.id)} 
+                      className="w-16 h-12 bg-slate-950 text-center rounded-lg border border-slate-700" 
+                    />
+                    
+                    {/* TO JEST JEDYNY POPRAWNY ZAPIS */}
+                    {fixture.status === 'FT' && pred.points !== null && (
+                      <span className="text-green-400 font-bold bg-green-400/10 px-3 py-1 rounded-full text-xs">
+                        +{pred.points} pkt
+                      </span>
+                    )}
+                  </div>
                   <details className="group mt-4 bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden mx-2 mb-4">
                   <summary className="cursor-pointer list-none p-3 text-[10px] text-slate-400 flex justify-between items-center uppercase tracking-widest hover:text-cyan-400 transition-colors">
                     <span>Zdarzenia meczowe</span>
