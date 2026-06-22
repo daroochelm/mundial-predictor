@@ -15,11 +15,15 @@ export default function DashboardPage() {
   const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().split('T')[0]);
 
   const renderEventIcon = (type: string, detail: string) => {
+    // Jeśli to niewykorzystany rzut karny, zwróć inną ikonę lub nic
+    if (detail === 'Missed Penalty') return <span className="text-red-500">❌ Missed Penalty</span>;
+    
     if (type === 'Goal') return <span>⚽</span>;
     if (type === 'Card') return <span className={`w-2 h-4 rounded-sm inline-block ${detail === 'Yellow Card' ? 'bg-yellow-400' : 'bg-red-600'}`}></span>;
-    if (type === 'subst') return <span className="text-green-500 font-bold">⇅</span>; // Ikona zmiany
+    if (type === 'subst') return <span className="text-green-500 font-bold">⇅</span>;
+    
     return null;
-  };  
+  }; 
 
   const availableDates = useMemo(() => {
     const dates = new Set(fixtures.map(f => new Date(f.start_time).toISOString().split('T')[0]));
