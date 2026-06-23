@@ -26,29 +26,44 @@ export default function DashboardPage() {
   }; 
 
   const availableDates = useMemo(() => {
-    const dates = new Set(fixtures.map(f => new Date(f.start_time).toISOString().split('T')[0]));
+    const dates = new Set(fixtures.map(f => f.start_time.split('T')[0]));
+    // Dodajemy dzisiejszą datę jako opcję, nawet jeśli mecz trwa od wczoraj
+    dates.add(new Date().toISOString().split('T')[0]);
     return Array.from(dates).sort();
   }, [fixtures]);
 
   const filteredFixtures = useMemo(() => {
-    return fixtures.filter(f => new Date(f.start_time).toISOString().split('T')[0] === selectedDate);
+    return fixtures.filter(f => {
+      const startDate = f.start_time.split('T')[0];
+      const isLive = f.status !== 'FT'; // Zakładamy, że status FT to Full Time
+      
+      // Pokaż, jeśli mecz jest z tego dnia LUB mecz jest w toku
+      return startDate === selectedDate || isLive;
+    });
   }, [fixtures, selectedDate]);
 
   const fetchData = useCallback(async (showLoading = false) => {
     if (showLoading) setIsInitialLoading(true);
-    
+    const now = new Date();
+  const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
+  const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString();
     const { data: { session } } = await supabase.auth.getSession();
     setUser(session?.user || null);
 
     const { data: fixturesData } = await supabase
-      .from('fixtures')
-      .select('*')
-      .eq('league_id', 1)
-      .order('start_time', { ascending: true });
+    .from('fixtures')
+    .select('*')
+    .eq('league_id', 1)
+    .gte('start_time', yesterday) // Tylko mecze z ostatnich 24h
+    .lte('start_time', tomorrow)  // ...i na kolejne 24h
+    .order('start_time', { ascending: true });
 
     if (fixturesData) {
       setFixtures(fixturesData);
-      const { data: eventsData } = await supabase.from('events').select('*').in('fixture_id', fixturesData.map(f => f.id));
+      const { data: eventsData } = await supabase
+      .from('events')
+      .select('*')
+      .in('fixture_id', fixturesData.map(f => f.id));
       console.log("Pobrane zdarzenia:", eventsData);
       setEvents(eventsData || []);
 
