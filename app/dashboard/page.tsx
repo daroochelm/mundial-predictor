@@ -17,7 +17,10 @@ export default function DashboardPage() {
   const renderEventIcon = (type: string, detail: string) => {
     // Jeśli to niewykorzystany rzut karny, zwróć inną ikonę lub nic
     if (detail === 'Missed Penalty') return <span className="text-red-500">❌</span>;
-    
+    // 2. Samobój: Czerwona piłka
+  if (type === 'Goal' && detail==='Own Goal') {
+    return <span className="text-red-600 font-bold">⚽</span>;
+  }
     if (type === 'Goal') return <span>⚽</span>;
     if (type === 'Card') return <span className={`w-2 h-4 rounded-sm inline-block ${detail === 'Yellow Card' ? 'bg-yellow-400' : 'bg-red-600'}`}></span>;
     if (type === 'subst') return <span className="text-green-500 font-bold">⇅</span>;
