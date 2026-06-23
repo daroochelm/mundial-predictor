@@ -19,7 +19,7 @@ export default function DashboardPage() {
     if (detail === 'Missed Penalty') return <span className="text-red-500">❌</span>;
     // 2. Samobój: Czerwona piłka
   if (detail==='Own Goal') {
-    return <span className="text-red-600 font-bold">X</span>;
+    return <span className="text-red-600 font-bold">⚽</span>;
   }
     if (type === 'Goal') return <span>⚽</span>;
     if (type === 'Card') return <span className={`w-2 h-4 rounded-sm inline-block ${detail === 'Yellow Card' ? 'bg-yellow-400' : 'bg-red-600'}`}></span>;
@@ -57,8 +57,6 @@ export default function DashboardPage() {
     .from('fixtures')
     .select('*')
     .eq('league_id', 1)
-    .gte('start_time', yesterday) // Tylko mecze z ostatnich 24h
-    .lte('start_time', tomorrow)  // ...i na kolejne 24h
     .order('start_time', { ascending: true });
 
     if (fixturesData) {
@@ -174,7 +172,10 @@ export default function DashboardPage() {
               <>
                 <span className="text-cyan-500 font-bold w-8 shrink-0">{ev.minute}'</span>
                 <span className="w-4 shrink-0">{renderEventIcon(ev.event_type, ev.extra_info)}</span>
-                <span className="truncate">{ev.player_name || "Bez nazwy"}</span>
+                
+                <span className={`truncate ${ev.extra_info?.toLowerCase().includes('own goal') ? 'text-red-500' : ''}`}>
+  {ev.player_name}
+</span>
               </>
             )}
           </div>
