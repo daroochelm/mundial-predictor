@@ -19,7 +19,7 @@ export default function DashboardPage() {
     if (detail === 'Missed Penalty') return <span className="text-red-500">❌</span>;
     // 2. Samobój: Czerwona piłka
   if (type === 'Goal' && detail==='Own Goal') {
-    return <span className="text-red-600 font-bold">⚽</span>;
+    return <span className="text-red-600 font-bold">X</span>;
   }
     if (type === 'Goal') return <span>⚽</span>;
     if (type === 'Card') return <span className={`w-2 h-4 rounded-sm inline-block ${detail === 'Yellow Card' ? 'bg-yellow-400' : 'bg-red-600'}`}></span>;
