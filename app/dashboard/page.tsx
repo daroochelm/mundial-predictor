@@ -18,7 +18,7 @@ export default function DashboardPage() {
     // Jeśli to niewykorzystany rzut karny, zwróć inną ikonę lub nic
     if (detail === 'Missed Penalty') return <span className="text-red-500">❌</span>;
     // 2. Samobój: Czerwona piłka
-  if (type === 'Goal' && detail==='Own Goal') {
+  if (detail==='Own Goal') {
     return <span className="text-red-600 font-bold">X</span>;
   }
     if (type === 'Goal') return <span>⚽</span>;
