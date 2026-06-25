@@ -12,7 +12,10 @@ export default function DashboardPage() {
   const [predictions, setPredictions] = useState<Record<number, any>>({});
   const [messages, setMessages] = useState<Record<number, string>>({});
   const [isInitialLoading, setIsInitialLoading] = useState(true);
-  const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().split('T')[0]);
+  const [selectedDate, setSelectedDate] = useState(() => {
+    // Generujemy datę 'dzisiaj', ale w strefie UTC
+    return new Date().toISOString().split('T')[0];
+  });
 
   const renderEventIcon = (type: string, detail: string) => {
     // Jeśli to niewykorzystany rzut karny, zwróć inną ikonę lub nic
@@ -29,19 +32,22 @@ export default function DashboardPage() {
   }; 
 
   const availableDates = useMemo(() => {
-    const dates = new Set(fixtures.map(f => f.start_time.split('T')[0]));
-    // Dodajemy dzisiejszą datę jako opcję, nawet jeśli mecz trwa od wczoraj
-    dates.add(new Date().toISOString().split('T')[0]);
+    // Tutaj też używamy substring, żeby nie przeliczać na obiekt Date
+    const dates = new Set(fixtures.map(f => f.start_time.substring(0, 10)));
+    dates.add(new Date().toISOString().split('T')[0]); // Dzisiejsza data UTC
     return Array.from(dates).sort();
   }, [fixtures]);
 
   const filteredFixtures = useMemo(() => {
     return fixtures.filter(f => {
-      const startDate = f.start_time.split('T')[0];
-      const isLive = f.status !== 'FT'; // Zakładamy, że status FT to Full Time
+      // f.start_time to np. "2026-06-28 02:00:00+00"
+      // Wycinamy sam początek tekstu, ignorując strefę czasową:
+      const datePart = f.start_time.substring(0, 10); 
       
-      // Pokaż, jeśli mecz jest z tego dnia LUB mecz jest w toku
-      return startDate === selectedDate || isLive;
+      const isFromSelectedDay = datePart === selectedDate;
+      const isLive = f.status !== 'FT' && f.status !== 'NS';
+      
+      return isFromSelectedDay || isLive;
     });
   }, [fixtures, selectedDate]);
 
