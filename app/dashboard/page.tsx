@@ -117,7 +117,7 @@ export default function DashboardPage() {
         
         <div className="text-center py-6">
           <h2 className="text-xl font-bold uppercase tracking-widest text-cyan-500">
-    1/32 Finału (Round of 32)
+    1/16 Finału
   </h2>
   <p className="text-red-500 font-semibold text-sm mt-1">
     Typuj wyniki regulaminowe (90 minut)
