@@ -16,6 +16,7 @@ export default function DashboardPage() {
     // Generujemy datę 'dzisiaj', ale w strefie UTC
     return new Date().toISOString().split('T')[0];
   });
+  const [selectedStage, setSelectedStage] = useState('knockout');
 
   const renderEventIcon = (type: string, detail: string) => {
     // Jeśli to niewykorzystany rzut karny, zwróć inną ikonę lub nic
@@ -32,22 +33,29 @@ export default function DashboardPage() {
   }; 
 
   const availableDates = useMemo(() => {
-    // Tutaj też używamy substring, żeby nie przeliczać na obiekt Date
-    const dates = new Set(fixtures.map(f => f.start_time.substring(0, 10)));
-    dates.add(new Date().toISOString().split('T')[0]); // Dzisiejsza data UTC
+    // Pobieramy tylko mecze z fazy pucharowej
+    const knockoutFixtures = fixtures.filter(f => f.stage_type === 'knockout');
+    
+    // Wyciągamy daty tylko dla tych meczów
+    const dates = new Set(knockoutFixtures.map(f => f.start_time.substring(0, 10)));
+    
+    // Opcjonalnie: jeśli dzisiaj jest dzień pucharowy, dodaj go
+    const today = new Date().toISOString().split('T')[0];
+    if (knockoutFixtures.some(f => f.start_time.substring(0, 10) === today)) {
+      dates.add(today);
+    }
+    
     return Array.from(dates).sort();
   }, [fixtures]);
 
   const filteredFixtures = useMemo(() => {
     return fixtures.filter(f => {
-      // f.start_time to np. "2026-06-28 02:00:00+00"
-      // Wycinamy sam początek tekstu, ignorując strefę czasową:
-      const datePart = f.start_time.substring(0, 10); 
-      
-      const isFromSelectedDay = datePart === selectedDate;
+      const isKnockout = f.stage_type === 'knockout';
+      const isFromSelectedDay = f.start_time.substring(0, 10) === selectedDate;
       const isLive = f.status !== 'FT' && f.status !== 'NS';
       
-      return isFromSelectedDay || isLive;
+      // Teraz pokazujemy mecz tylko jeśli jest fazy knockout ORAZ (z wybranego dnia LUB trwa na żywo)
+      return isKnockout && (isFromSelectedDay || isLive);
     });
   }, [fixtures, selectedDate]);
 
@@ -107,7 +115,14 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-slate-950 text-white p-4 md:p-8">
       <div className="max-w-3xl mx-auto">
         <h1 className="text-3xl font-extrabold text-center mb-4 uppercase">Typer 2026</h1>
-        <WorldCupCountdown />
+        <div className="text-center py-6">
+          <h2 className="text-xl font-bold uppercase tracking-widest text-cyan-500">
+    1/32 Finału (Round of 32)
+  </h2>
+  <p className="text-red-500 font-semibold text-sm mt-1">
+    Typuj wyniki regulaminowe (90 minut)
+  </p>
+</div>
         
         <div className="flex overflow-x-auto gap-2 pb-4 mt-6">
           {availableDates.map(date => (
