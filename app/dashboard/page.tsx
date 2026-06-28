@@ -114,7 +114,7 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-slate-950 text-white p-4 md:p-8">
       <div className="max-w-3xl mx-auto">
-        <h1 className="text-3xl font-extrabold text-center mb-4 uppercase">Typer 2026</h1>
+        
         <div className="text-center py-6">
           <h2 className="text-xl font-bold uppercase tracking-widest text-cyan-500">
     1/32 Finału (Round of 32)
