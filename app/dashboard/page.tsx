@@ -50,12 +50,11 @@ export default function DashboardPage() {
 
   const filteredFixtures = useMemo(() => {
     return fixtures.filter(f => {
-      const isKnockout = f.stage_type === 'knockout';
-      const isFromSelectedDay = f.start_time.substring(0, 10) === selectedDate;
-      const isLive = f.status !== 'FT' && f.status !== 'NS';
+      const matchDate = new Date(f.start_time).toISOString().split('T')[0];
+      const isFromSelectedDay = matchDate === selectedDate;
       
-      // Teraz pokazujemy mecz tylko jeśli jest fazy knockout ORAZ (z wybranego dnia LUB trwa na żywo)
-      return isKnockout && (isFromSelectedDay || isLive);
+      // Jeśli chcesz, aby mecz był widoczny TYLKO w swoim dniu:
+      return isFromSelectedDay;
     });
   }, [fixtures, selectedDate]);
 
@@ -164,58 +163,7 @@ export default function DashboardPage() {
                   )}
                 </div>
 
-                <details className="group mt-4 bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden mx-2 mb-4">
-                <summary className="cursor-pointer list-none p-3 text-[10px] text-slate-400 flex justify-between items-center uppercase tracking-widest hover:text-cyan-400 transition-colors">
-  <span>
-    Zdarzenia meczowe (
-    {events.filter(e => 
-      Number(e.fixture_id) === Number(fixture.id) && 
-      e.event_type !== 'subst' && 
-      e.event_type !== 'Var'
-    ).length})
-  </span>
-  <span className="group-open:rotate-180 transition-transform">▼</span>
-</summary>
-  <div className="p-4 border-t border-slate-800 space-y-2 bg-slate-950">
-  {events
-  .filter(e => 
-    Number(e.fixture_id) === Number(fixture.id) && 
-    e.event_type !== 'subst' &&           // <--- TO JEST NOWY FILTR
-    !['Var'].includes(e.event_type)       // Zostawiamy blokadę VAR
-  )
-  .sort((a, b) => (a.minute || 0) - (b.minute || 0))
-  .map((ev, idx) => (   
-        <div key={idx} className="flex items-center text-xs text-slate-300 py-1 border-b border-slate-800/50 last:border-0">
-          
-          {/* LEWA STRONA (Gospodarze) */}
-          <div className="flex-1 flex items-center justify-start gap-2">
-            {ev.team_name === fixture.home_team && (
-              <>
-                <span className="text-cyan-500 font-bold w-8 shrink-0">{ev.minute}'</span>
-                <span className="w-4 shrink-0">{renderEventIcon(ev.event_type, ev.extra_info)}</span>
-                
-                <span className={`truncate ${ev.extra_info?.toLowerCase().includes('own goal') ? 'text-red-500' : ''}`}>
-  {ev.player_name}
-</span>
-              </>
-            )}
-          </div>
-
-          {/* PRAWA STRONA (Goście) */}
-          <div className="flex-1 flex items-center justify-end gap-2 text-right">
-            {ev.team_name === fixture.away_team && (
-              <>
-                <span className="truncate">{ev.player_name || "Bez nazwy"}</span>
-                <span className="w-4 shrink-0">{renderEventIcon(ev.event_type, ev.extra_info)}</span>
-                <span className="text-cyan-500 font-bold w-8 shrink-0">{ev.minute}'</span>
-              </>
-            )}
-          </div>
-          
-        </div>
-      ))}
-  </div>
-</details>
+               
                 {messages[fixture.id] && <p className="text-center text-xs text-green-400">{messages[fixture.id]}</p>}
               </div>
             );
